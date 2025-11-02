@@ -1,0 +1,29 @@
+module top_module (
+    input [3:0] SW,    
+    input [3:0] KEY, // KEY[0]=clk, KEY[1]=E, KEY[2]=L, KEY[3]=w  
+    output [3:0] LEDR  
+);
+
+    // Initiate 4 MUXDFFs (shifting LEFT as required by HDLBits)
+    MUXDFF m0(KEY[0], KEY[1], KEY[2], LEDR[1], SW[0], LEDR[0]);
+    MUXDFF m1(KEY[0], KEY[1], KEY[2], LEDR[2], SW[1], LEDR[1]);
+    MUXDFF m2(KEY[0], KEY[1], KEY[2], LEDR[3], SW[2], LEDR[2]);
+    MUXDFF m3(KEY[0], KEY[1], KEY[2], KEY[3], SW[3], LEDR[3]);
+
+endmodule
+
+
+//MUX + D Flip-Flop
+module MUXDFF (
+    input clk,
+    input E, L, w, R,
+    output reg Q
+);
+    always @(posedge clk)
+        if (L)
+            Q <= R;  // Parallel load
+        else if (E)
+            Q <= w;  // Shift
+        else
+            Q <= Q;  // Hold
+endmodule

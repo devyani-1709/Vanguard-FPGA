@@ -1,0 +1,17 @@
+module top_module (
+    input clk,
+    input resetn,   // synchronous reset
+    input in,
+    output out);
+    
+    reg [3:0] q;  // 4 D flip-flops
+    always @(posedge clk) begin
+        if (!resetn)               //when resetn = 0, synchronous reset to 0
+            q <= 4'b0000;
+        else
+            q <= {q[2:0], in};     // shift right, input enters LSB
+    end
+
+    assign out = q[3];             // output from the last flip-flop
+
+endmodule

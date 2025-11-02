@@ -1,0 +1,30 @@
+module top_module(
+    input clk,
+    input areset,    // Asynchronous reset to state B
+    input in,
+    output out);//  
+
+    // state assignment
+    parameter A = 1'b0, B = 1'b1; 
+    reg state, next_state;
+	
+    // Combinational next-state logic
+    always @(*) begin
+        case(state)
+            A: next_state = (in ? A : B);
+            B: next_state = (in ? B : A);
+        endcase
+    end
+	
+    // sequential block
+    always @(posedge clk, posedge areset) begin
+        if (areset)
+            state <= B;  // asynchronous reset
+        else
+            state <= next_state;  // normal state transition
+    end
+
+    // Output logic
+    assign out = (state == B);
+
+endmodule
