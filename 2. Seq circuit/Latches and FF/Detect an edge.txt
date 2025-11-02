@@ -1,0 +1,12 @@
+module top_module (
+    input clk,
+    input [7:0] in,
+    output [7:0] pedge
+);
+    reg [7:0] prev_in;  // stores previous input value
+    always @(posedge clk) begin
+        pedge <= (~prev_in) & in;  // detect 0-1 transition for each bit
+        prev_in <= in;             // updates prev_in
+    end
+
+endmodule

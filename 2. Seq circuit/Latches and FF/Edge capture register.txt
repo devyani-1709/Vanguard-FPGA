@@ -1,0 +1,15 @@
+module top_module (
+    input clk,
+    input reset,
+    input [31:0] in,
+    output [31:0] out
+);
+    reg [31:0] prev; //stores previous value
+    always @(posedge clk) begin
+        if (reset) out <= 0;  // Reset if synchronous reset given
+        else
+            out <= out | (prev & ~in); //1 for 1-0 transition
+        prev <= in; //update prev value
+    end
+
+endmodule

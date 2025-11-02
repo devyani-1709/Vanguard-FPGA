@@ -1,0 +1,73 @@
+module top_module(
+    input clk,
+    input reset,
+    input ena,
+    output pm,
+    output [7:0] hh,
+    output [7:0] mm,
+    output [7:0] ss
+);
+
+    // split into BCD digits
+    reg [3:0] s1, s10, m1, m10, h1, h10;
+
+    always @(posedge clk) begin
+        if (reset) begin
+            // initialize to 12:00 AM
+            s1 <= 4'd0;
+            s10 <= 4'd0;
+            m1 <= 4'd0;
+            m10 <= 4'd0;
+            h1 <= 4'd2;
+            h10 <= 4'd1;
+            pm <= 1'b0;
+        end 
+        else if (ena) begin
+            //seconds counting
+            if (s1 == 4'd9) begin
+                s1 <= 4'd0;
+                if (s10 == 4'd5) begin
+                    s10 <= 4'd0;
+                    // minutes counting
+                    if (m1 == 4'd9) begin
+                        m1 <= 4'd0;
+                        if (m10 == 4'd5) begin
+                            m10 <= 4'd0;
+                            //hours counting and am/pm toggle
+                            if ({h10,h1} == 8'h11) begin
+                                h10 <= 4'd1;
+                                h1  <= 4'd2;
+                                pm  <= ~pm;   // toggle after 11:59:59
+                            end
+                            else if ({h10,h1} == 8'h12) begin
+                                h10 <= 4'd0;
+                                h1  <= 4'd1;  // 12 to 01
+                            end
+                            else if ({h10,h1} == 8'h09) begin
+                                h10 <= 4'd1;
+                                h1  <= 4'd0;
+                            end
+                            else begin
+                                {h10,h1} <= {h10,h1} + 8'h01;
+                            end
+                        end else begin
+                            m10 <= m10 + 1'b1;
+                        end
+                    end else begin
+                        m1 <= m1 + 1'b1;
+                    end
+                end else begin
+                    s10 <= s10 + 1'b1;
+                end
+            end else begin
+                s1 <= s1 + 1'b1;
+            end
+        end
+    end
+
+    // continuous assignments for output ports
+    assign ss = {s10, s1};
+    assign mm = {m10, m1};
+    assign hh = {h10, h1};
+
+endmodule

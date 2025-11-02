@@ -1,0 +1,36 @@
+module top_module (
+    input clk,
+    input reset,   // Synchronous active-high reset
+    output [3:1] ena,
+    output [15:0] q
+);
+    // initiate 4 digit BCD counters
+    decade_counter d1(clk, reset, 1, q[3:0]);
+    decade_counter d2(clk, reset, ena[1], q[7:4]);
+    decade_counter d3(clk, reset, ena[2], q[11:8]);
+    decade_counter d4(clk, reset, ena[3], q[15:12]);
+
+    // define enables
+    assign ena[1] = q[3] & q[0];
+    assign ena[2] = q[7] & q[4] & q[3] & q[0];
+    assign ena[3] = q[11] & q[8] & q[7] & q[4] & q[3] & q[0];
+endmodule
+
+// One-digit BCD counter (0–9)
+module decade_counter (
+    input clk,
+    input reset,
+    input ena,
+    output reg [3:0] q
+);
+    always @(posedge clk) begin
+        if (reset)
+            q <= 4'd0;      // reset to 0
+        else if (ena) begin
+            if (q == 4'd9)
+                q <= 4'd0;    // roll over after 9
+            else
+                q <= q + 4'd1;   // increment
+        end
+    end
+endmodule
